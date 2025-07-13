@@ -1,0 +1,41 @@
+
+services:
+  orchid-service:
+    container_name: orchid-service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8081"
+    depends_on:
+      - minio
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://host.docker.internal:1433;databaseName=OrchidDB;trustServerCertificate=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: 12345
+      MINIO_ENDPOINT: http://minio:9000
+      MINIO_ACCESS_KEY: nhon
+      MINIO_SECRET_KEY: nhon123456
+    networks:
+      - backend-orchid
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio-service
+    ports:
+      - "9000:9000"  # S3 API
+      - "9001:9001"  # Console Web UIz`
+    environment:
+      MINIO_ROOT_USER: nhon
+      MINIO_ROOT_PASSWORD: nhon123456
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - backend-orchid
+
+volumes:
+  minio-data:
+
+networks:
+  backend-orchid:
