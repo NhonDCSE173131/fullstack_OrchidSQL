@@ -30,18 +30,29 @@ export default function AdminOrders() {
       ...selectedOrder,
       orderStatus: editStatus
     }, { headers: getAuthHeaders() })
-      .then(() => {
-        fetchOrders();
-        setShowModal(false);
-      });
+        .then(() => {
+          fetchOrders();  // Refresh list after update
+          setShowModal(false);
+        })
+        .catch(err => {
+          console.error("Error updating order:", err);
+          alert("Update failed");
+        });
   };
 
   const handleDelete = (orderId) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       axios.delete(`${baseUrl}/${orderId}`, { headers: getAuthHeaders() })
-        .then(() => fetchOrders());
+          .then(() => {
+            fetchOrders();  // Refresh list after delete
+          })
+          .catch(err => {
+            console.error("Error deleting order:", err);
+            alert("Delete failed");
+          });
     }
   };
+
 
   return (
     <Container className="mt-4">
@@ -91,6 +102,25 @@ export default function AdminOrders() {
                   value={editStatus}
                   onChange={e => setEditStatus(e.target.value)}
                   className="shadow-sm"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3">
+                <Form.Label>Price</Form.Label>
+                <Form.Control
+                    type="number"
+                    value={selectedOrder.price || 0}  // Đảm bảo có giá trị mặc định nếu không có giá trị
+                    onChange={e => setSelectedOrder({...selectedOrder, price: e.target.value})}
+                    className="shadow-sm"
+                />
+              </Form.Group>
+
+              <Form.Group className="mb-3">
+                <Form.Label>Quantity</Form.Label>
+                <Form.Control
+                    type="number"
+                    value={selectedOrder.quantity || 1}  // Đảm bảo có giá trị mặc định nếu không có giá trị
+                    onChange={e => setSelectedOrder({...selectedOrder, quantity: e.target.value})}
+                    className="shadow-sm"
                 />
               </Form.Group>
               <p><strong>Total:</strong> {selectedOrder.price}</p>

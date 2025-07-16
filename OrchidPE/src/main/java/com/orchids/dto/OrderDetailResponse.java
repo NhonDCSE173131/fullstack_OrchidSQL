@@ -8,6 +8,6 @@ public class OrderDetailResponse {
     private Long productId; // or orchidId, depending on your model
     private String orchidName;
     private String orchidUrl;
-    private Integer quantity;
+    private int quantity;
     private Double price;
 }

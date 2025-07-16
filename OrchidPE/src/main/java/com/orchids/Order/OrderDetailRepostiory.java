@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface OrderDetailRepostiory extends JpaRepository<OrderDetail, Long> {
-    // Additional query methods can be defined here if needed
+    void deleteAllByOrder_Id(Long orderId);
 }

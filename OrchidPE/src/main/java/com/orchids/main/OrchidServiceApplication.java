@@ -13,7 +13,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @SpringBootApplication
 @EntityScan(basePackages = "com.orchids.pojo")
 @ComponentScan(basePackages = {
-        "com.orchids.controller",
         "com.orchids.Account",
         "com.orchids.Role",
         "com.orchids.Category",
@@ -26,7 +25,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 })
 @EnableJpaRepositories(basePackages = {
-        "com.orchids.controller",
         "com.orchids.Account",
         "com.orchids.Role",
         "com.orchids.Category",

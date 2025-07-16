@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -134,26 +135,41 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public void deleteOrder(Long orderId) {
+        orderDetailRepository.deleteAllByOrder_Id(orderId);
         orderRepository.deleteById(orderId);
+
     }
 
     @Override
+    @Transactional
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public OrderItemResponse updateOrder(Long orderId, OrderItemRequest request) {
         return orderRepository.findById(orderId).map(order -> {
             order.setOrderDate(request.getOrderDate() != null ? request.getOrderDate() : order.getOrderDate());
             order.setOrderStatus(request.getOrderStatus() != null ? request.getOrderStatus() : order.getOrderStatus());
-            order.setTotalAmount(BigDecimal.valueOf(request.getPrice() * request.getQuantity()));
+
+            // Kiểm tra quantity và price không null trước khi tính toán
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            if (request.getPrice() != null && request.getQuantity() != null) {
+                totalAmount = BigDecimal.valueOf(request.getPrice() * request.getQuantity());
+            } else {
+                // Gán giá trị mặc định nếu price hoặc quantity là null
+                totalAmount = BigDecimal.valueOf(0); // Hoặc một giá trị mặc định khác nếu cần
+            }
+            order.setTotalAmount(totalAmount);
+
             if (request.getAccountId() != null) {
                 accountRepository.findById(request.getAccountId()).ifPresent(order::setAccount);
             }
-            // Update order details if needed
+            // Cập nhật chi tiết đơn hàng nếu cần
             Order updated = orderRepository.save(order);
             return toResponse(updated);
         }).orElse(null);
     }
+
 
     @PreAuthorize("hasRole('ROLE_USER')")
     public List<OrderItemResponse> getOrdersForCurrentUser() {
